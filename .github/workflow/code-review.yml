@@ -1,0 +1,112 @@
+name: Automated Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  PYTHON_VERSION: '3.11'
+  # Optimized for 7GB RAM runners. 1.3B models are fast and stable.
+  OLLAMA_MODEL: 'deepseek-coder:1.3b'
+  # Disable LLM by default in CI to avoid timeouts
+  OLLAMA_ENABLED: 'false'
+
+jobs:
+  code-review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Minimize install to essential packages
+          pip install -e ".[crewai]"
+
+      - name: Install and Start Ollama
+        if: env.OLLAMA_ENABLED == 'true'
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+
+          # Force memory-efficient settings
+          OLLAMA_NUM_PARALLEL=1 OLLAMA_MAX_LOADED_MODELS=1 ollama serve > ollama.log 2>&1 &
+
+          echo "Waiting for Ollama..."
+          timeout 60s bash -c 'until curl -s localhost:11434/api/tags > /dev/null; do sleep 2; done'
+
+          echo "Pulling lightweight model..."
+          ollama pull ${{ env.OLLAMA_MODEL }}
+
+      - name: Run Code Analysis
+        id: analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python -c "
+          import os
+          import sys
+          try:
+              from src.github.client import GitHubClient
+              from src.analysis.analyzer import CodeAnalyzer
+              from src.agents.orchestrator import ReviewOrchestrator
+
+              github = GitHubClient(token=os.environ['GITHUB_TOKEN'])
+              analyzer = CodeAnalyzer()
+              repo = os.environ['GITHUB_REPOSITORY']
+              pr_num = int(os.environ['PR_NUMBER'])
+              
+              pr_info = github.get_pull_request(repo, pr_num)
+              orchestrator = ReviewOrchestrator(
+                  github_client=github,
+                  code_analyzer=analyzer,
+                  enable_auto_commit=False
+              )
+              
+              print(f'Starting analysis on PR #{pr_num}...')
+              result = orchestrator.run_workflow(pr_info, pr_info.files)
+              
+              summary_path = os.environ.get('GITHUB_STEP_SUMMARY')
+              with open(summary_path, 'w') as f:
+                  f.write(getattr(result, 'summary', 'Review completed.'))
+          except Exception as e:
+              print(f'Error: {e}')
+              sys.exit(1)
+          "
+
+      - name: Upload Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ollama-debug-logs
+          path: ollama.log
+
+  # Consolidated Security & Lint into one job to save runner minutes
+  check-quality:
+    name: Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run Checks
+        run: |
+          pip install ruff bandit safety
+          ruff check src/ --output-format=github || true
+          bandit -r src/ -f txt || true
