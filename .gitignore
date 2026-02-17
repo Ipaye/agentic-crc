@@ -70,6 +70,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+examples/latest_logs/
 
 # Local development
 *.local

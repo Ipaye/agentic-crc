@@ -305,6 +305,18 @@ ruff check src/
 mypy src/
 ```
 
+## Example Artifacts
+
+After you run a review locally (e.g., `python -m src.main analyze --repo owner/repo --pr 1`), refresh the demo assets:
+
+```bash
+python scripts/refresh_examples.py
+```
+
+This copies the latest `logs/pr_<PR>_<TIMESTAMP>/` directory into `examples/latest_logs/` and rewrites `examples/sample_review_summary.json` so your documentation matches the freshest run. Use `--logs-root`, `--examples-dir`, or `--max-issues` to tweak what gets copied.
+
+The `examples/README.md` file explains how to interpret the copied logs and summary once the script finishes.
+
 ## Environment Variables
 
 | Variable                    | Description                             | Default                  |
