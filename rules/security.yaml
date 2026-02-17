@@ -1,0 +1,106 @@
+# Security Rules
+# These rules detect potential security vulnerabilities
+
+rules:
+  - id: SECURITY-004
+    name: hardcoded_ip_address
+    description: Hardcoded IP addresses should be externalized
+    category: security
+    severity: warning
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b"
+    message_template: 'Hardcoded IP address detected: {matched}'
+    suggestion_template: 'Move IP addresses to configuration files or environment variables'
+    documentation_url: 'https://owasp.org/www-project-web-security-testing-guide/'
+    enabled: true
+
+  - id: SECURITY-005
+    name: insecure_random
+    description: Use cryptographically secure random number generation
+    category: security
+    severity: warning
+    languages:
+      - python
+    pattern: "\\brandom\\.(random|randint|choice|shuffle)\\s*\\("
+    message_template: 'Using non-cryptographic random for potentially sensitive operation'
+    suggestion_template: 'Use secrets module for security-sensitive randomness'
+    documentation_url: 'https://docs.python.org/3/library/secrets.html'
+    enabled: true
+
+  - id: SECURITY-006
+    name: js_insecure_random
+    description: Use cryptographically secure random number generation
+    category: security
+    severity: warning
+    languages:
+      - javascript
+      - typescript
+    pattern: "Math\\.random\\(\\)"
+    message_template: 'Math.random() is not cryptographically secure'
+    suggestion_template: 'Use crypto.getRandomValues() for security-sensitive operations'
+    enabled: true
+
+  - id: SECURITY-007
+    name: cors_allow_all
+    description: Avoid allowing all origins in CORS configuration
+    category: security
+    severity: error
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "(?i)(?:cors|access-control-allow-origin).*\\*"
+    message_template: 'CORS configuration allows all origins'
+    suggestion_template: 'Restrict allowed origins to specific trusted domains'
+    documentation_url: 'https://owasp.org/www-community/attacks/CORS_OriginHeaderScrutiny'
+    enabled: true
+
+  - id: SECURITY-008
+    name: insecure_cookie
+    description: Cookies should be secure and HTTP-only
+    category: security
+    severity: error
+    languages:
+      - python
+      - javascript
+      - typescript
+    pattern: "(?i)set.*cookie.*(?:secure\\s*[=:]\\s*false|httponly\\s*[=:]\\s*false)"
+    message_template: 'Cookie configuration may be insecure'
+    suggestion_template: 'Set Secure=true and HttpOnly=true for sensitive cookies'
+    documentation_url: 'https://owasp.org/www-community/controls/SecureCookieAttribute'
+    enabled: true
+
+  - id: SECURITY-009
+    name: xxe_vulnerable
+    description: XML parsing may be vulnerable to XXE attacks
+    category: security
+    severity: error
+    languages:
+      - python
+      - java
+    pattern: "(?i)(etree\\.parse|xml\\.dom\\.minidom|SAXParser|DocumentBuilder)"
+    message_template: 'XML parsing may be vulnerable to XXE attacks'
+    suggestion_template: 'Disable external entity processing in XML parser configuration'
+    documentation_url: 'https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing'
+    enabled: true
+
+  - id: SECURITY-010
+    name: path_traversal
+    description: Potential path traversal vulnerability
+    category: security
+    severity: error
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "(?:open|read|write|Path)\\s*\\([^)]*(?:request|user|input|param)"
+    message_template: 'Potential path traversal vulnerability when using user input in file operations'
+    suggestion_template: 'Validate and sanitize user input, use allowlists for permitted paths'
+    documentation_url: 'https://owasp.org/www-community/attacks/Path_Traversal'
+    enabled: true

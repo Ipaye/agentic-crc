@@ -1,0 +1,75 @@
+# Style & Formatting Rules
+# These rules enforce consistent code style across the codebase
+
+rules:
+  - id: STYLE-004
+    name: max_line_length
+    description: Lines should not exceed 120 characters
+    category: style
+    severity: info
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: '^.{121,}$'
+    message_template: 'Line exceeds maximum length of 120 characters'
+    suggestion_template: 'Break this line into multiple shorter lines'
+    enabled: true
+
+  - id: STYLE-005
+    name: trailing_whitespace
+    description: Lines should not have trailing whitespace
+    category: style
+    severity: info
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "\\s+$"
+    message_template: 'Line has trailing whitespace'
+    suggestion_template: 'Remove trailing whitespace'
+    enabled: true
+
+  - id: STYLE-006
+    name: multiple_blank_lines
+    description: Avoid multiple consecutive blank lines
+    category: style
+    severity: info
+    languages:
+      - python
+      - javascript
+      - typescript
+    pattern: "(?:\\n\\s*){3,}\\n"
+    message_template: 'Multiple consecutive blank lines detected'
+    suggestion_template: 'Use at most two consecutive blank lines'
+    enabled: true
+
+  - id: STYLE-007
+    name: inconsistent_quotes
+    description: Use consistent quote style
+    category: style
+    severity: info
+    languages:
+      - python
+      - javascript
+      - typescript
+    message_template: 'Inconsistent quote style detected'
+    suggestion_template: 'Choose either single or double quotes and use consistently'
+    enabled: true
+
+  - id: STYLE-008
+    name: missing_final_newline
+    description: Files should end with a newline
+    category: style
+    severity: info
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    anti_pattern: "\\n$"
+    message_template: 'File does not end with a newline'
+    suggestion_template: 'Add a newline at the end of the file'
+    enabled: true

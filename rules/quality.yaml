@@ -1,0 +1,102 @@
+# Code Quality Rules
+# These rules help maintain high code quality standards
+
+rules:
+  - id: QUALITY-005
+    name: too_many_parameters
+    description: Functions should not have too many parameters
+    category: quality
+    severity: warning
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "(?:def|function|\\()\\s*\\w*\\s*\\([^)]*,[^)]*,[^)]*,[^)]*,[^)]*,"
+    message_template: 'Function has more than 5 parameters'
+    suggestion_template: 'Consider grouping parameters into a configuration object or data class'
+    enabled: true
+
+  - id: QUALITY-006
+    name: god_class
+    description: Classes should not be too large
+    category: quality
+    severity: warning
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    message_template: 'Class appears to have too many responsibilities'
+    suggestion_template: 'Consider splitting this class into smaller, focused classes'
+    enabled: true
+
+  - id: QUALITY-007
+    name: dead_code
+    description: Remove unreachable code
+    category: quality
+    severity: warning
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "\\breturn\\b[^;\\n]*[;\\n][^}]*\\b(?:if|for|while|let|const|var|def|function)\\b"
+    message_template: 'Potentially unreachable code after return statement'
+    suggestion_template: 'Remove code after return statement or restructure logic'
+    enabled: true
+
+  - id: QUALITY-008
+    name: duplicate_condition
+    description: Avoid duplicate conditions in if-else chains
+    category: quality
+    severity: warning
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    message_template: 'Duplicate condition detected in conditional chain'
+    suggestion_template: 'Review and consolidate duplicate conditions'
+    enabled: true
+
+  - id: QUALITY-009
+    name: boolean_expression_complexity
+    description: Boolean expressions should not be too complex
+    category: quality
+    severity: warning
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "(?:and|or|&&|\\|\\|)[^\\n]*(?:and|or|&&|\\|\\|)[^\\n]*(?:and|or|&&|\\|\\|)"
+    message_template: 'Boolean expression is too complex'
+    suggestion_template: 'Simplify by extracting conditions into named variables'
+    enabled: true
+
+  - id: QUALITY-010
+    name: missing_error_handling
+    description: Async operations should have error handling
+    category: quality
+    severity: warning
+    languages:
+      - javascript
+      - typescript
+    pattern: "await\\s+(?!.*\\.catch)[^}]*(?:fetch|axios|request)"
+    message_template: 'Async operation may be missing error handling'
+    suggestion_template: 'Wrap in try-catch or add .catch() handler'
+    enabled: true
+
+  - id: QUALITY-011
+    name: hardcoded_timeout
+    description: Timeouts and intervals should use named constants
+    category: quality
+    severity: info
+    languages:
+      - javascript
+      - typescript
+    pattern: "(?:setTimeout|setInterval)\\s*\\([^)]*,\\s*\\d{4,}\\s*\\)"
+    message_template: 'Magic number used as timeout value'
+    suggestion_template: 'Define a named constant for the timeout duration'
+    enabled: true

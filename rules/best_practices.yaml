@@ -1,0 +1,117 @@
+# Best Practices Rules
+# These rules promote coding best practices
+
+rules:
+  - id: BEST-006
+    name: assert_in_production
+    description: Avoid using assert for production code logic
+    category: best_practices
+    severity: warning
+    languages:
+      - python
+    pattern: "^\\s*assert\\s+"
+    message_template: 'Assert statements are excluded when Python runs with -O flag'
+    suggestion_template: 'Use explicit conditional checks and raise exceptions'
+    enabled: true
+
+  - id: BEST-007
+    name: type_comparison
+    description: Use isinstance() instead of type comparison
+    category: best_practices
+    severity: warning
+    languages:
+      - python
+    pattern: "type\\s*\\([^)]+\\)\\s*==\\s*"
+    message_template: "Direct type comparison doesn't account for inheritance"
+    suggestion_template: 'Use isinstance(obj, Type) instead of type(obj) == Type'
+    enabled: true
+
+  - id: BEST-008
+    name: mutable_class_attribute
+    description: Avoid mutable class attributes
+    category: best_practices
+    severity: warning
+    languages:
+      - python
+    pattern: "class\\s+\\w+[^:]*:\\s*\\n(?:[^\\n]*\\n)*?\\s+\\w+\\s*=\\s*(?:\\[\\]|\\{\\})"
+    message_template: 'Mutable class attribute is shared between all instances'
+    suggestion_template: 'Initialize mutable attributes in __init__ instead'
+    enabled: true
+
+  - id: BEST-009
+    name: promise_executor_async
+    description: Promise executor should not be async
+    category: best_practices
+    severity: warning
+    languages:
+      - javascript
+      - typescript
+    pattern: "new\\s+Promise\\s*\\(\\s*async"
+    message_template: 'Promise executor function should not be async'
+    suggestion_template: 'Remove async from executor or use Promise.resolve() with async/await'
+    enabled: true
+
+  - id: BEST-010
+    name: object_assign_mutation
+    description: Avoid mutating objects with Object.assign
+    category: best_practices
+    severity: info
+    languages:
+      - javascript
+      - typescript
+    pattern: "Object\\.assign\\s*\\(\\s*\\w+\\s*,"
+    message_template: 'Object.assign mutates the first argument'
+    suggestion_template: 'Use spread operator or Object.assign({}, ...) to avoid mutation'
+    enabled: true
+
+  - id: BEST-011
+    name: optional_chain_with_call
+    description: Be cautious with optional chaining on function calls
+    category: best_practices
+    severity: info
+    languages:
+      - javascript
+      - typescript
+    pattern: "\\?\\.[^(]*\\("
+    message_template: 'Optional chaining before function call may hide undefined errors'
+    suggestion_template: 'Ensure the function exists before calling, or handle undefined case'
+    enabled: true
+
+  - id: BEST-012
+    name: java_string_equals
+    description: Use equals() method for string comparison in Java
+    category: best_practices
+    severity: error
+    languages:
+      - java
+    pattern: "[\"'][^\"']*[\"']\\s*==\\s*|==\\s*[\"'][^\"']*[\"']"
+    message_template: 'Use .equals() for string comparison, not =='
+    suggestion_template: 'Replace == with .equals() method'
+    enabled: true
+
+  - id: BEST-013
+    name: java_null_in_equals
+    description: Put constant on left side of equals to avoid NPE
+    category: best_practices
+    severity: info
+    languages:
+      - java
+    pattern: "\\w+\\.equals\\s*\\([\"'][^\"']+[\"']\\)"
+    message_template: 'Potential NPE if variable is null'
+    suggestion_template: 'Put the constant on the left: "constant".equals(variable)'
+    enabled: true
+
+  - id: BEST-014
+    name: todo_without_issue
+    description: TODOs should reference an issue or ticket
+    category: best_practices
+    severity: info
+    languages:
+      - python
+      - javascript
+      - typescript
+      - java
+    pattern: "(?:#|//)\\s*TODO:?\\s+(?![A-Z]+-\\d+)"
+    message_template: 'TODO comment should reference a tracking issue'
+    suggestion_template: 'Add issue reference: TODO(ISSUE-123): description'
+    enabled: true
